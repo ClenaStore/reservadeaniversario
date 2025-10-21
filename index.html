@@ -7,18 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#f9f6f2;
-  --card:#fff;
-  --accent:#b8860b;
-  --ink:#3a2e1f;
-  --radius:12px;
-  --shadow:0 3px 10px rgba(0,0,0,0.1);
+  --bg:#f9f6f2;--card:#fff;--accent:#b8860b;--ink:#3a2e1f;
+  --radius:12px;--shadow:0 3px 10px rgba(0,0,0,0.1);
 }
 body{
   font-family:'Inter',sans-serif;
   background:var(--bg);
   margin:0;
-  padding:0;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -26,72 +21,38 @@ body{
   min-height:100vh;
 }
 header{
-  width:100%;
-  text-align:center;
-  background:var(--accent);
-  color:#fff;
-  padding:1rem;
-  font-weight:600;
-  letter-spacing:.5px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.15);
+  width:100%;text-align:center;
+  background:var(--accent);color:#fff;
+  padding:1rem;font-weight:600;
 }
 .banner{
-  width:100%;
-  height:160px;
-  background:url('https://images.unsplash.com/photo-1565958011705-44e211f05d91?auto=format&fit=crop&w=1000&q=80') center/cover no-repeat;
+  width:100%;height:150px;
+  background:url('https://images.unsplash.com/photo-1565958011705-44e211f05d91?auto=format&fit=crop&w=900&q=80') center/cover no-repeat;
   border-bottom:4px solid var(--accent);
 }
 form{
-  background:var(--card);
-  width:90%;
-  max-width:420px;
-  margin-top:-40px;
-  padding:1.5rem;
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  display:flex;
-  flex-direction:column;
-  gap:1rem;
+  background:var(--card);width:90%;max-width:420px;
+  margin-top:-40px;padding:1.5rem;border-radius:var(--radius);
+  box-shadow:var(--shadow);display:flex;flex-direction:column;gap:1rem;
 }
 input,textarea{
-  padding:.8rem;
-  border:1px solid #ddd;
-  border-radius:var(--radius);
-  font-size:1rem;
-  background:#fdfdfd;
-  transition:all .2s;
+  padding:.8rem;border:1px solid #ddd;border-radius:var(--radius);
+  font-size:1rem;background:#fdfdfd;
 }
 input:focus,textarea:focus{
-  outline:none;
-  border-color:var(--accent);
+  outline:none;border-color:var(--accent);
   box-shadow:0 0 0 2px rgba(184,134,11,.15);
 }
 button{
-  background:var(--accent);
-  color:#fff;
-  border:none;
-  padding:.9rem;
-  border-radius:var(--radius);
-  font-weight:600;
-  letter-spacing:.5px;
-  cursor:pointer;
-  transition:.3s;
+  background:var(--accent);color:#fff;border:none;
+  padding:.9rem;border-radius:var(--radius);font-weight:600;
+  cursor:pointer;transition:.3s;
 }
 button:hover{background:#a57a09;}
-#msg{
-  text-align:center;
-  font-weight:600;
-  margin-top:.5rem;
-}
+#msg{text-align:center;font-weight:600;}
 .success{color:green;}
 .error{color:#d00;}
-footer{
-  margin-top:auto;
-  padding:1rem;
-  font-size:.8rem;
-  color:#777;
-  text-align:center;
-}
+footer{margin-top:auto;padding:1rem;font-size:.8rem;color:#777;}
 </style>
 </head>
 <body>
@@ -116,7 +77,7 @@ document.getElementById('reservaForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const f = e.target;
   const msg = document.getElementById('msg');
-  msg.textContent = "⏳ Enviando reserva...";
+  msg.textContent = "⏳ Enviando...";
   msg.className = "";
 
   const dados = {
@@ -129,17 +90,15 @@ document.getElementById('reservaForm').addEventListener('submit', async (e)=>{
   };
 
   try{
-    const resp = await fetch("https://script.google.com/macros/s/AKfycby9FFknSbsrOWAer3kErkUGaBDgkhhIinm6xD_LEbhj4bu44soH-_Sv_3WIfbO916p_/exec",{
+    const resp = await fetch("https://script.google.com/macros/s/AKfycbwCHFX2P8Us6NlXmqsODup2a-BmGXcm0K5AbOCUEeRDHalWhXKtVzWNypvcGUibwhZb/exec",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify(dados)
     });
 
-    if(!resp.ok) throw new Error("Erro HTTP: " + resp.status);
     const res = await resp.json();
-
     if(res.sucesso){
-      msg.innerHTML = "✅ Reserva enviada com sucesso! Aguarde confirmação.";
+      msg.innerHTML = "✅ Reserva enviada com sucesso!";
       msg.className = "success";
       f.reset();
     }else{
