@@ -2,30 +2,32 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Reserva de Mesa • Mercatto Delícia</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:#f9fafb; --card:#fff; --text:#111827; --muted:#6b7280;
+      --bg:#fafafa; --card:#fff; --text:#111827; --muted:#6b7280;
       --accent:#b8860b; --accent-dark:#8b6a05; --radius:12px;
-      --shadow:0 8px 24px rgba(0,0,0,.06);
+      --shadow:0 6px 18px rgba(0,0,0,.08);
     }
     body {
       font-family:'Inter',sans-serif; background:var(--bg); color:var(--text);
-      display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;
+      display:flex; align-items:center; justify-content:center; min-height:100vh;
+      padding:16px;
     }
     form {
-      background:var(--card); padding:30px; border-radius:var(--radius);
-      box-shadow:var(--shadow); width:100%; max-width:460px;
+      background:var(--card); padding:26px; border-radius:var(--radius);
+      box-shadow:var(--shadow); width:100%; max-width:440px;
     }
-    h1 {
-      text-align:center; color:var(--accent); margin-bottom:20px;
-    }
+    h1 { text-align:center; color:var(--accent); margin-bottom:20px; font-size:1.5rem; }
     label { font-weight:600; display:block; margin:12px 0 4px; }
     input, select, textarea {
-      width:100%; padding:10px; border:1px solid #d1d5db; border-radius:var(--radius);
-      font-size:15px;
+      width:100%; padding:12px; border:1px solid #d1d5db; border-radius:var(--radius);
+      font-size:15px; outline:none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color:var(--accent); box-shadow:0 0 0 2px rgba(184,134,11,0.2);
     }
     .row { display:flex; gap:10px; }
     .row > div { flex:1; }
@@ -37,7 +39,12 @@
       margin-top:20px; font-size:16px; cursor:pointer; transition:.2s;
     }
     button:hover { background:var(--accent-dark); }
-    #msg { text-align:center; margin-top:15px; font-weight:600; }
+    #msg { text-align:center; margin-top:12px; font-weight:600; font-size:0.9rem; }
+    #alerta-email {
+      font-size:0.85rem; color:var(--muted); margin-top:10px; text-align:center;
+      background:#fff8e6; border:1px solid #fcd34d; padding:8px; border-radius:var(--radius);
+    }
+    #campoOutro { display:none; }
   </style>
 </head>
 <body>
@@ -46,6 +53,9 @@
 
     <label>Nome Completo</label>
     <input type="text" name="nome" required>
+
+    <label>E-mail</label>
+    <input type="email" name="email" placeholder="exemplo@email.com" required>
 
     <div class="row">
       <div>
@@ -71,20 +81,25 @@
     <input type="number" name="pessoas" min="1" placeholder="Ex: 4" required>
 
     <label>Contato (WhatsApp)</label>
-    <input type="tel" name="contato" placeholder="(DDD) 9XXXX-XXXX" required>
+    <input type="tel" name="contato" id="whatsapp" inputmode="numeric" placeholder="(DDD) 9XXXX-XXXX" maxlength="15" required>
 
     <label>Ocasião</label>
-    <select name="ocasiao">
+    <select name="ocasiao" id="ocasiao" required>
       <option value="">Selecione</option>
       <option>Aniversário</option>
       <option>Reunião</option>
       <option>Jantar Romântico</option>
       <option>Comemoração</option>
-      <option>Outro</option>
+      <option value="Outro">Outro</option>
     </select>
 
+    <div id="campoOutro">
+      <label>Descreva a Ocasião</label>
+      <input type="text" name="ocasiao_outro" placeholder="Qual é a ocasião?">
+    </div>
+
     <label>Decoração</label>
-    <input type="text" name="decoracao" placeholder="Ex: balões dourados, flores vermelhas, etc.">
+    <input type="text" name="decoracao" placeholder="Ex: Balões dourados, flores vermelhas, etc.">
 
     <label>Comandas Individuais</label>
     <div class="radio-group">
@@ -95,16 +110,38 @@
     <label>Observações</label>
     <textarea name="obs" rows="3" placeholder="Detalhes adicionais..."></textarea>
 
+    <div id="alerta-email">
+      ⚠️ A confirmação da reserva será enviada por e-mail.  
+      Em caso de dúvidas, entre em contato via WhatsApp.
+    </div>
+
     <button type="submit">Enviar Reserva</button>
     <p id="msg"></p>
   </form>
 
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzZwaBdOS6aPw-43DQJirOfXw_XY0pw-l-lHqUOhuH_e5AA3nlPv5KlUA3QQ0QtEGIh7g/exec'; // 🔗 Substitua pelo seu link do Apps Script
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz3AJRCAVH4Ec9pajHjkzxejtNqR8l3KYtNXisriKV-OU9nD5rWh7ltHFTuP90YY4UxIQ/exec'; // 🔗 substitua pelo seu Apps Script
 
     const form = document.getElementById('reservaForm');
     const msg = document.getElementById('msg');
+    const ocasiaoSelect = document.getElementById('ocasiao');
+    const campoOutro = document.getElementById('campoOutro');
+    const whatsappInput = document.getElementById('whatsapp');
 
+    // mostra campo "outro"
+    ocasiaoSelect.addEventListener('change', () => {
+      campoOutro.style.display = ocasiaoSelect.value === 'Outro' ? 'block' : 'none';
+    });
+
+    // máscara para WhatsApp
+    whatsappInput.addEventListener('input', (e) => {
+      let v = e.target.value.replace(/\D/g, '');
+      v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+      v = v.replace(/(\d{5})(\d)/, '$1-$2');
+      e.target.value = v.substring(0, 15);
+    });
+
+    // envio
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       msg.textContent = "Enviando...";
@@ -113,6 +150,7 @@
         await fetch(scriptURL, { method: 'POST', body: data });
         msg.textContent = "✅ Reserva registrada com sucesso!";
         form.reset();
+        campoOutro.style.display = 'none';
       } catch (err) {
         msg.textContent = "❌ Erro ao enviar. Tente novamente.";
       }
