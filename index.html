@@ -13,69 +13,108 @@
     }
     body {
       font-family:'Inter',sans-serif; background:var(--bg); color:var(--text);
-      display:flex; align-items:center; justify-content:center; height:100vh; padding:20px;
+      display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;
     }
     form {
       background:var(--card); padding:30px; border-radius:var(--radius);
-      box-shadow:var(--shadow); width:100%; max-width:420px;
+      box-shadow:var(--shadow); width:100%; max-width:460px;
     }
-    h1 { text-align:center; color:var(--accent); margin-bottom:20px; }
-    label { font-weight:600; display:block; margin:15px 0 5px; }
-    input, textarea {
+    h1 {
+      text-align:center; color:var(--accent); margin-bottom:20px;
+    }
+    label { font-weight:600; display:block; margin:12px 0 4px; }
+    input, select, textarea {
       width:100%; padding:10px; border:1px solid #d1d5db; border-radius:var(--radius);
       font-size:15px;
     }
+    .row { display:flex; gap:10px; }
+    .row > div { flex:1; }
+    .radio-group { display:flex; gap:15px; align-items:center; margin-top:6px; }
+    .radio-group label { font-weight:400; cursor:pointer; }
     button {
       width:100%; background:var(--accent); color:#fff; font-weight:600;
       border:none; padding:12px; border-radius:var(--radius);
       margin-top:20px; font-size:16px; cursor:pointer; transition:.2s;
     }
     button:hover { background:var(--accent-dark); }
-    .success { color:var(--accent-dark); text-align:center; margin-top:10px; font-weight:600; }
+    #msg { text-align:center; margin-top:15px; font-weight:600; }
   </style>
 </head>
 <body>
   <form id="reservaForm">
-    <h1>Fazer Reserva</h1>
+    <h1>Reserva de Mesa</h1>
+
     <label>Nome Completo</label>
     <input type="text" name="nome" required>
 
-    <label>E-mail</label>
-    <input type="email" name="email" required>
+    <div class="row">
+      <div>
+        <label>Data</label>
+        <input type="date" name="data" required>
+      </div>
+      <div>
+        <label>Horário</label>
+        <input type="time" name="horario" required>
+      </div>
+    </div>
 
-    <label>WhatsApp</label>
-    <input type="tel" name="whatsapp" placeholder="(DDD) 9XXXX-XXXX" required>
+    <label>Área</label>
+    <select name="area" required>
+      <option value="">Selecione</option>
+      <option>Salão Principal</option>
+      <option>Varanda</option>
+      <option>Área Externa</option>
+      <option>VIP / Reservado</option>
+    </select>
 
-    <label>Data da Reserva</label>
-    <input type="date" name="data" required>
+    <label>Nº de Pessoas</label>
+    <input type="number" name="pessoas" min="1" placeholder="Ex: 4" required>
 
-    <label>Horário</label>
-    <input type="time" name="horario" required>
+    <label>Contato (WhatsApp)</label>
+    <input type="tel" name="contato" placeholder="(DDD) 9XXXX-XXXX" required>
 
-    <label>Observações (opcional)</label>
-    <textarea name="obs" rows="3" placeholder="Preferência de mesa, aniversário, etc."></textarea>
+    <label>Ocasião</label>
+    <select name="ocasiao">
+      <option value="">Selecione</option>
+      <option>Aniversário</option>
+      <option>Reunião</option>
+      <option>Jantar Romântico</option>
+      <option>Comemoração</option>
+      <option>Outro</option>
+    </select>
+
+    <label>Decoração</label>
+    <input type="text" name="decoracao" placeholder="Ex: balões dourados, flores vermelhas, etc.">
+
+    <label>Comandas Individuais</label>
+    <div class="radio-group">
+      <label><input type="radio" name="comandas" value="Sim" required> Sim</label>
+      <label><input type="radio" name="comandas" value="Não" required> Não</label>
+    </div>
+
+    <label>Observações</label>
+    <textarea name="obs" rows="3" placeholder="Detalhes adicionais..."></textarea>
 
     <button type="submit">Enviar Reserva</button>
-    <p id="msg" class="success"></p>
+    <p id="msg"></p>
   </form>
 
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbypXnRfH8rTV-z8EZf0pKLcN_leuM_eiunQgn1O4R-CB86NBIFUh5jtMQGOVLpEvGy0fg/exec'; // substitua pelo seu link do Apps Script
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzZwaBdOS6aPw-43DQJirOfXw_XY0pw-l-lHqUOhuH_e5AA3nlPv5KlUA3QQ0QtEGIh7g/exec'; // 🔗 Substitua pelo seu link do Apps Script
 
-    document.getElementById('reservaForm').addEventListener('submit', async (e) => {
+    const form = document.getElementById('reservaForm');
+    const msg = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const form = e.target;
+      msg.textContent = "Enviando...";
       const data = new FormData(form);
-      document.querySelector("button").innerText = "Enviando...";
-      
       try {
         await fetch(scriptURL, { method: 'POST', body: data });
+        msg.textContent = "✅ Reserva registrada com sucesso!";
         form.reset();
-        document.getElementById("msg").innerText = "✅ Reserva enviada com sucesso!";
-      } catch (error) {
-        document.getElementById("msg").innerText = "❌ Erro ao enviar. Tente novamente.";
-      } finally {
-        document.querySelector("button").innerText = "Enviar Reserva";
+      } catch (err) {
+        msg.textContent = "❌ Erro ao enviar. Tente novamente.";
       }
     });
   </script>
