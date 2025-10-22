@@ -1,70 +1,83 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🎉 Reserva de Aniversário - Mercatto</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg:#f9f6f2;--card:#fff;--accent:#b8860b;--ink:#3a2e1f;
-  --radius:12px;--shadow:0 3px 10px rgba(0,0,0,0.1);
-}
-body{font-family:'Inter',sans-serif;background:var(--bg);margin:0;
-  display:flex;flex-direction:column;align-items:center;min-height:100vh;color:var(--ink);}
-header{width:100%;text-align:center;background:var(--accent);color:#fff;
-  padding:1rem;font-weight:600;}
-form{background:var(--card);width:90%;max-width:420px;margin:2rem 0;
-  padding:1.5rem;border-radius:var(--radius);box-shadow:var(--shadow);
-  display:flex;flex-direction:column;gap:1rem;}
-input,textarea{padding:.8rem;border:1px solid #ddd;border-radius:var(--radius);
-  font-size:1rem;}
-button{background:var(--accent);color:#fff;border:none;padding:.9rem;
-  border-radius:var(--radius);font-weight:600;cursor:pointer;}
-button:hover{background:#a57a09;}
-#msg{text-align:center;font-weight:600;}
-.success{color:green;}
-.error{color:#d00;}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reserva de Mesa • Mercatto Delícia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#f9fafb; --card:#fff; --text:#111827; --muted:#6b7280;
+      --accent:#b8860b; --accent-dark:#8b6a05; --radius:12px;
+      --shadow:0 8px 24px rgba(0,0,0,.06);
+    }
+    body {
+      font-family:'Inter',sans-serif; background:var(--bg); color:var(--text);
+      display:flex; align-items:center; justify-content:center; height:100vh; padding:20px;
+    }
+    form {
+      background:var(--card); padding:30px; border-radius:var(--radius);
+      box-shadow:var(--shadow); width:100%; max-width:420px;
+    }
+    h1 { text-align:center; color:var(--accent); margin-bottom:20px; }
+    label { font-weight:600; display:block; margin:15px 0 5px; }
+    input, textarea {
+      width:100%; padding:10px; border:1px solid #d1d5db; border-radius:var(--radius);
+      font-size:15px;
+    }
+    button {
+      width:100%; background:var(--accent); color:#fff; font-weight:600;
+      border:none; padding:12px; border-radius:var(--radius);
+      margin-top:20px; font-size:16px; cursor:pointer; transition:.2s;
+    }
+    button:hover { background:var(--accent-dark); }
+    .success { color:var(--accent-dark); text-align:center; margin-top:10px; font-weight:600; }
+  </style>
 </head>
 <body>
-<header>🎂 Reservas de Aniversário</header>
+  <form id="reservaForm">
+    <h1>Fazer Reserva</h1>
+    <label>Nome Completo</label>
+    <input type="text" name="nome" required>
 
-<form id="reservaForm">
-  <input type="text" name="nome" placeholder="Seu nome completo" required>
-  <input type="email" name="email" placeholder="Seu e-mail" required>
-  <input type="tel" name="telefone" placeholder="Telefone (opcional)">
-  <input type="number" name="pessoas" placeholder="Número de pessoas" required min="1">
-  <input type="datetime-local" name="datahora" required>
-  <textarea name="obs" placeholder="Observações (opcional)" rows="3"></textarea>
-  <button type="submit">Fazer Reserva</button>
-  <div id="msg"></div>
-</form>
+    <label>E-mail</label>
+    <input type="email" name="email" required>
 
-<script>
-document.getElementById('reservaForm').addEventListener('submit',async(e)=>{
-  e.preventDefault();
-  const f=e.target,msg=document.getElementById('msg');
-  msg.textContent="⏳ Enviando...";
-  const dados={
-    nome:f.nome.value.trim(),
-    email:f.email.value.trim(),
-    telefone:f.telefone.value.trim(),
-    pessoas:f.pessoas.value.trim(),
-    datahora:f.datahora.value,
-    obs:f.obs.value.trim()
-  };
-  try{
-    const r=await fetch("https://script.google.com/macros/s/AKfycbyEAeZ5emT7ak6MJLDW2JTY0V2kJ8X4xfsOLt2oGy_fRp436M3dZG9gvBW-nW3L9kpg/exec",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(dados)
+    <label>WhatsApp</label>
+    <input type="tel" name="whatsapp" placeholder="(DDD) 9XXXX-XXXX" required>
+
+    <label>Data da Reserva</label>
+    <input type="date" name="data" required>
+
+    <label>Horário</label>
+    <input type="time" name="horario" required>
+
+    <label>Observações (opcional)</label>
+    <textarea name="obs" rows="3" placeholder="Preferência de mesa, aniversário, etc."></textarea>
+
+    <button type="submit">Enviar Reserva</button>
+    <p id="msg" class="success"></p>
+  </form>
+
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbypXnRfH8rTV-z8EZf0pKLcN_leuM_eiunQgn1O4R-CB86NBIFUh5jtMQGOVLpEvGy0fg/exec'; // substitua pelo seu link do Apps Script
+
+    document.getElementById('reservaForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+      document.querySelector("button").innerText = "Enviando...";
+      
+      try {
+        await fetch(scriptURL, { method: 'POST', body: data });
+        form.reset();
+        document.getElementById("msg").innerText = "✅ Reserva enviada com sucesso!";
+      } catch (error) {
+        document.getElementById("msg").innerText = "❌ Erro ao enviar. Tente novamente.";
+      } finally {
+        document.querySelector("button").innerText = "Enviar Reserva";
+      }
     });
-    const j=await r.json();
-    if(j.sucesso){msg.textContent="✅ Reserva registrada!";msg.className="success";f.reset();}
-    else{msg.textContent="❌ Erro: "+(j.erro||"Falha.");msg.className="error";}
-  }catch{msg.textContent="❌ Falha de conexão.";msg.className="error";}
-});
-</script>
+  </script>
 </body>
 </html>
