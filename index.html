@@ -45,14 +45,20 @@ input:focus,select:focus,textarea:focus{
 button{
   width:100%;background:var(--accent);color:#fff;font-weight:600;
   border:none;padding:12px;border-radius:var(--radius);margin-top:20px;
-  font-size:16px;cursor:pointer;transition:.2s;
+  font-size:16px;cursor:pointer;position:relative;overflow:hidden;
+  transition:background .2s ease;
 }
 button:hover{background:var(--accent-dark);}
-#alerta-email{
-  font-size:.85rem;color:var(--muted);margin-top:10px;text-align:center;
-  background:#fff8e6;border:1px solid #fcd34d;padding:8px;border-radius:var(--radius);
+button:disabled{opacity:0.8;cursor:not-allowed;}
+
+/* ===== Loader interno ===== */
+.btn-loader{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  display:none;width:20px;height:20px;border:2px solid #fff;
+  border-top:2px solid transparent;border-radius:50%;
+  animation:spin 0.8s linear infinite;
 }
-#campoOutro{display:none;}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg);}}
 
 /* ===== Pop-up ===== */
 .popup-overlay{
@@ -70,9 +76,12 @@ button:hover{background:var(--accent-dark);}
   background:var(--accent);color:#fff;border:none;border-radius:var(--radius);
   padding:10px 20px;font-weight:600;cursor:pointer;font-size:.95rem;
 }
-@keyframes fadeIn{
-  from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}
+@keyframes fadeIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
+#alerta-email{
+  font-size:.85rem;color:var(--muted);margin-top:10px;text-align:center;
+  background:#fff8e6;border:1px solid #fcd34d;padding:8px;border-radius:var(--radius);
 }
+#campoOutro{display:none;}
 </style>
 </head>
 <body>
@@ -145,7 +154,10 @@ button:hover{background:var(--accent-dark);}
     Em caso de dúvidas, entre em contato via WhatsApp.
   </div>
 
-  <button type="submit">Enviar Reserva</button>
+  <button type="submit" id="btnEnviar">
+    <span class="btn-text">Enviar Reserva</span>
+    <div class="btn-loader"></div>
+  </button>
 </form>
 
 <!-- Pop-up -->
@@ -164,6 +176,9 @@ const ocasiaoSelect = document.getElementById('ocasiao');
 const campoOutro = document.getElementById('campoOutro');
 const whatsappInput = document.getElementById('whatsapp');
 const popup = document.getElementById('popup');
+const btn = document.getElementById('btnEnviar');
+const btnText = btn.querySelector('.btn-text');
+const btnLoader = btn.querySelector('.btn-loader');
 
 // campo "outro"
 ocasiaoSelect.addEventListener('change',()=>{
@@ -181,6 +196,9 @@ whatsappInput.addEventListener('input',(e)=>{
 // envio
 form.addEventListener('submit',async(e)=>{
   e.preventDefault();
+  btn.disabled=true;
+  btnText.style.opacity='0';
+  btnLoader.style.display='block';
   const data=new FormData(form);
   try{
     await fetch(scriptURL,{method:'POST',body:data});
@@ -189,6 +207,10 @@ form.addEventListener('submit',async(e)=>{
     abrirPopup();
   }catch(err){
     alert('❌ Erro ao enviar. Tente novamente.');
+  }finally{
+    btn.disabled=false;
+    btnText.style.opacity='1';
+    btnLoader.style.display='none';
   }
 });
 
